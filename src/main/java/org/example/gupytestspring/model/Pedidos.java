@@ -17,4 +17,12 @@ public class Pedidos {
     @Column (length = 20, nullable = false)
     private String category;
 
+    @Column (length = 20, nullable = false)
+    private int price;
+
+    @Column (length = 255, nullable = false)
+    private String description;
+
+
+
 }

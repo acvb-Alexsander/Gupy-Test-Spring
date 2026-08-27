@@ -23,6 +23,8 @@ public class GupyTestSpringApplication {
             Pedidos pedido = new Pedidos();
             pedido.setName("Angular com Spring");
             pedido.setCategory("front-end");
+            pedido.setPrice(14);
+            pedido.setDescription("hello");
             pedidosRepository.save(pedido);
         };
     }
