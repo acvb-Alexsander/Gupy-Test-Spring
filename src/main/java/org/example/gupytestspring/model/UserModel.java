@@ -1,0 +1,23 @@
+package org.example.gupytestspring.model;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Data
+@Entity
+public class UserModel {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    @Column (length = 200, nullable = false)
+    private String name;
+
+    @Column (length = 20, nullable = false)
+    private String email;
+
+    @Column (length = 200, nullable = false)
+    private int cel;
+
+    @Column (length = 20, nullable = false)
+    private String password;
+}
