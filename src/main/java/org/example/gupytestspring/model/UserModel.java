@@ -9,15 +9,15 @@ public class UserModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column (length = 200, nullable = false)
+    @Column (length = 255, nullable = false)
     private String name;
 
-    @Column (length = 20, nullable = false)
+    @Column (length = 255, nullable = false)
     private String email;
 
-    @Column (length = 200, nullable = false)
+    @Column (length = 255, nullable = false)
     private int cel;
 
-    @Column (length = 20, nullable = false)
+    @Column (length = 255, nullable = false)
     private String password;
 }
