@@ -36,8 +36,8 @@ public class GupyTestSpringApplication {
             UserModel user = new UserModel();
             user.setName("Alexsander");
             user.setEmail("acvb.dev@gmail.com");
-            user.setCel(12345678);
-            user.setPassword("123456");
+            user.setCel("12345678");
+            user.setPassword("12345678");
             userRepository.save(user);
         };
     }

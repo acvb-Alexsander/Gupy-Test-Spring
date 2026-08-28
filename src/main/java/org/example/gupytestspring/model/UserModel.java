@@ -12,11 +12,11 @@ public class UserModel {
     @Column (length = 255, nullable = false)
     private String name;
 
-    @Column (length = 255, nullable = false)
+    @Column (unique=true, length = 255, nullable = false)
     private String email;
 
-    @Column (length = 255, nullable = false)
-    private int cel;
+    @Column (unique = true, length = 255, nullable = false)
+    private String cel;
 
     @Column (length = 255, nullable = false)
     private String password;
