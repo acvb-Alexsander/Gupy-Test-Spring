@@ -39,6 +39,8 @@ public class PedidosController {
         return pedidosRepository.findById(id).map(recordFound -> {
             recordFound.setName(pedido.getName());
             recordFound.setCategory(pedido.getCategory());
+            recordFound.setPrice(pedido.getPrice());
+            recordFound.setDescription(pedido.getDescription());
             Pedidos updated = pedidosRepository.save(recordFound);
             return ResponseEntity.ok().body(updated);
         }).orElse(ResponseEntity.notFound().build());
