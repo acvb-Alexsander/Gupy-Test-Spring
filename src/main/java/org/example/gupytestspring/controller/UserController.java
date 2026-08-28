@@ -1,108 +1,78 @@
 package org.example.gupytestspring.controller;
 
-import lombok.AllArgsConstructor;
-import org.example.gupytestspring.model.Pedidos;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.example.gupytestspring.dto.ForgotPasswordRequestDTO;
+import org.example.gupytestspring.dto.LoginRequestDTO;
+import org.example.gupytestspring.dto.UserRequestDTO;
+import org.example.gupytestspring.dto.UserResponseDTO;
 import org.example.gupytestspring.model.UserModel;
-import org.example.gupytestspring.repository.UserRepository;
+import org.example.gupytestspring.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
+@Tag(name = "Usuários", description = "CRUD de usuários, login e recuperação de senha")
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("api/users")
-@AllArgsConstructor
-
+@RequiredArgsConstructor
 public class UserController {
-    private final UserRepository userRepository;
 
+    private final UserService userService;
+
+    @Operation(summary = "Lista todos os usuários")
     @GetMapping
-    public List<UserModel> list(){
-        return userRepository.findAll();
+    public List<UserResponseDTO> list() {
+        return userService.list().stream()
+                .map(UserResponseDTO::fromEntity)
+                .toList();
     }
 
+    @Operation(summary = "Busca um usuário pelo id")
     @GetMapping("/{id}")
-    public ResponseEntity<UserModel> findById(@PathVariable Long id){
-        return userRepository.findById(id).map(record-> ResponseEntity.ok().body(record)).
-                orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<UserResponseDTO> findById(@PathVariable Long id) {
+        UserModel user = userService.findById(id);
+        return ResponseEntity.ok(UserResponseDTO.fromEntity(user));
     }
 
+    @Operation(summary = "Cadastra um novo usuário")
     @PostMapping
-    @ResponseStatus(code = HttpStatus.CREATED)
-    public ResponseEntity<?> create(@RequestBody UserModel user) {
-
-        if (userRepository.existsByEmail(user.getEmail())) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body("E-mail já cadastrado");
-        }
-
-        UserModel savedUser = userRepository.save(user);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(savedUser);
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponseDTO create(@Valid @RequestBody UserRequestDTO dto) {
+        UserModel user = userService.create(dto);
+        return UserResponseDTO.fromEntity(user);
     }
 
+    @Operation(summary = "Atualiza um usuário existente")
     @PutMapping("/{id}")
-    public ResponseEntity<UserModel> update(@PathVariable Long id, @RequestBody UserModel user){
-        return userRepository.findById(id).map(recordFound -> {
-            recordFound.setName(user.getName());
-            recordFound.setEmail(user.getEmail());
-            recordFound.setCel(user.getCel());
-            recordFound.setPassword(user.getPassword());
-            UserModel updated = userRepository.save(recordFound);
-            return ResponseEntity.ok().body(updated);
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<UserResponseDTO> update(@PathVariable Long id, @Valid @RequestBody UserRequestDTO dto) {
+        UserModel updated = userService.update(id, dto);
+        return ResponseEntity.ok(UserResponseDTO.fromEntity(updated));
     }
 
+    @Operation(summary = "Remove um usuário")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id){
-        return userRepository.findById(id).map(recordFound ->{
-            userRepository.deleteById(id);
-            return  ResponseEntity.noContent().<Void>build();
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        userService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Autentica um usuário por e-mail e senha")
     @PostMapping("/login")
-    public ResponseEntity<UserModel> login(@RequestBody UserModel user) {
-
-        return userRepository
-                .findByEmailAndPassword(
-                        user.getEmail(),
-                        user.getPassword()
-                )
-                .map(ResponseEntity::ok)
-                .orElseGet(() ->
-                        ResponseEntity
-                                .status(HttpStatus.UNAUTHORIZED)
-                                .build()
-                );
+    public ResponseEntity<UserResponseDTO> login(@Valid @RequestBody LoginRequestDTO dto) {
+        UserModel user = userService.login(dto);
+        return ResponseEntity.ok(UserResponseDTO.fromEntity(user));
     }
 
+    @Operation(summary = "Redefine a senha de um usuário a partir do e-mail")
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(
-            @RequestBody UserModel user
-    ) {
-
-        Optional<UserModel> userOptional =
-                userRepository.findByEmail(user.getEmail());
-
-        if (userOptional.isEmpty()) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("E-mail não encontrado");
-        }
-
-        UserModel userFound = userOptional.get();
-
-        userFound.setPassword(user.getPassword());
-
-        userRepository.save(userFound);
-
-        return ResponseEntity.ok("Senha alterada com sucesso");
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO dto) {
+        userService.forgotPassword(dto);
+        return ResponseEntity.ok().build();
     }
 }
